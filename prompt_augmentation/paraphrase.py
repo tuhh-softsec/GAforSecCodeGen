@@ -28,6 +28,7 @@ class Paraphraser(AbstractPromptAugmentation):
 
 
 if __name__ == "__main__": 
+    
     paraphrase = Paraphraser()
     prompt = "The quick brown fox jumps over the lazy dog."
     augmented_prompts = paraphrase.augment_prompt(prompt, num_beams=5, num_return_sequences=5)
