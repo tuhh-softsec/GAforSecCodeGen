@@ -17,7 +17,8 @@ class BanditScan():
                 cmd, shell=True, text=True, capture_output=True) # need to add check=True as well to the arugment. But later
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            return e.stderr
+            print(f"Bnadit scan failed: {e.stderr}")
+            return None
         
         
     def process_scan_output(self, prompt_id, prompt, bandit_output):

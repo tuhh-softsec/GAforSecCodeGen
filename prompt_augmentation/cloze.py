@@ -14,7 +14,7 @@ class Cloze(AbstractPromptAugmentation):
     def augment_prompt(self, prompt):
         
         words = prompt.split()
-        num_words_to_mask = random.randint(1, 2)
+        num_words_to_mask = random.randint(1, 3)
         
         for _ in range(num_words_to_mask):
             word_to_mask = random.choice(words)

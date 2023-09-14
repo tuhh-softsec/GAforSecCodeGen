@@ -5,6 +5,9 @@ MAX_LENGTH = 150 # length of the prompts
 
 class BackTranslation(AbstractPromptAugmentation):
 
+    def __init__(self):
+        self.languages = ['fr', 'de', 'es', 'it']
+
     def augment_prompt(self, prompt, source_lang='en', target_lang='fr'):
         # Translate English to Target Language
         model_name_fwd = f'Helsinki-NLP/opus-mt-{source_lang}-{target_lang}'
@@ -31,10 +34,10 @@ if __name__ == "__main__":
     translate = BackTranslation()
     
     prompt = "The quick brown fox jumps over the lazy dog."
-    languages = ['fr', 'de', 'es', 'it']
+    #languages = ['fr', 'de', 'es', 'it']
     back_translations = {}
 
-    for lang in languages:
+    for lang in translate.languages:
         back_translations[lang] = translate.augment_prompt(prompt, target_lang=lang)
         print(f"Back translated using {lang}: {back_translations[lang]}")
 
