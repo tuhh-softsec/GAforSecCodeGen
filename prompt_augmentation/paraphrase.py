@@ -1,5 +1,5 @@
 from transformers import *
-from abs_prompt_augmentation import AbstractPromptAugmentation
+from . abs_prompt_augmentation import AbstractPromptAugmentation
 import logging
 from transformers import logging as transformers_logging
 from transformers import GenerationMixin
@@ -12,6 +12,7 @@ class Paraphraser(AbstractPromptAugmentation):
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained("Vamsi/T5_Paraphrase_Paws")
         self.model = AutoModelForSeq2SeqLM.from_pretrained("Vamsi/T5_Paraphrase_Paws")
+        super().__init__()
 
     def augment_prompt(self, prompt, num_return_sequences=5, num_beams=5):
     # tokenize the text to be form of a list of token IDs
@@ -33,3 +34,4 @@ if __name__ == "__main__":
     prompt = "The quick brown fox jumps over the lazy dog."
     augmented_prompts = paraphrase.augment_prompt(prompt, num_beams=5, num_return_sequences=5)
     print(augmented_prompts)
+    

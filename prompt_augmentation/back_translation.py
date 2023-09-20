@@ -1,5 +1,5 @@
 from transformers import MarianMTModel, MarianTokenizer
-from abs_prompt_augmentation import AbstractPromptAugmentation
+from . abs_prompt_augmentation import AbstractPromptAugmentation
 
 MAX_LENGTH = 150 # length of the prompts
 
@@ -7,6 +7,7 @@ class BackTranslation(AbstractPromptAugmentation):
 
     def __init__(self):
         self.languages = ['fr', 'de', 'es', 'it']
+        super().__init__()
 
     def augment_prompt(self, prompt, source_lang='en', target_lang='fr'):
         # Translate English to Target Language

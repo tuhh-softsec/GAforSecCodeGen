@@ -5,14 +5,16 @@ from SAST_integration.bandit_scan import BanditScan
 from prompt_scoring.scoring import PromptScoring
 
 
-
+API_KEY = ""
 back_translate = back_translation.BackTranslation()
 cloze_augment = cloze.Cloze()
 paraphrase_augment = paraphrase.Paraphraser()
+bandit_scan = BanditScan()
+code_generator = CodeGenerator(API_KEY)
 
 
 
-def f_gps(prompt_id, prompt, D_dev, bandit_scan, code_generator):
+def f_gps(prompt_id, prompt, D_dev):
     """ calculate the fitness of a prompt based on Ddev dataset """ 
     if not isinstance(bandit_scan, BanditScan):
         raise TypeError("Expected an object of type BanditScan")
@@ -83,53 +85,53 @@ def g_gps(prompts_to_augment):
     unique_prompts = paraphrase_augment.remove_duplicate_prompts(prompts=augmented_prompts)
     return unique_prompts
 
-
-def create_initial_population(G0, population_size):
-    # Create an initial population based on the single starting prompt
-    # slight variations of G0 to form a population; replace this with a more sophisticated approach
-    population = [G0 + str(i) for i in range(population_size)]
-    return population
-
-def GPS_algorithm(G0, Ddev, f_gps, g_gps, T, K, population_size):
-    # Step 1: Create an initial population based on the single starting prompt
-    G_t = create_initial_population(G0, population_size)
+def GPS_algorithm(G_0, Ddev, f_gps, g_gps, T, K):
+    """ method implementing the GPS algorithm"""
+    G_t = G_0
     stored_G = []
+    reproductive_groups = []
+
     
     for t in range(T+1):
+        print(f"Iteration {t} in progress...")
         stored_G.append(G_t)
         
-        # Step 4: Calculate score for each prompt using fGPS
-        scores = [f_gps(prompt, Ddev) for prompt in G_t]
+        # Calculate score for each prompt using fGPS
+        scores = [f_gps(f"{t}_{index}", prompt, Ddev) for index, prompt in enumerate(G_t)]
         
-        # Step 5: Select top K prompts as reproductive group
-        reproductive_group = [x for _, x in sorted(zip(scores, G_t), reverse=True)][:K]
+        # Select top K prompts as reproductive group along with their scores
+        reproductive_group = sorted(zip(scores, G_t), reverse=True)[:K]
+        print(f"Top {K} prompts in iteration {t}:")
+        for prompt, score in reproductive_group:
+            print(f"Prompt: {prompt}, Score: {score} \n")
+        reproductive_groups.append(reproductive_group)
         
-        # Step 6: Generate G_t+1 based on reproductive group using gGPS
-        G_t = g_gps(reproductive_group)
-    
+        # Generate G_t+1 based on reproductive group using gGPS
+        top_prompts = [x[1] for x in reproductive_group]
+        G_t = g_gps(top_prompts)
+   
     # Step 8: Select top K prompts from all stored generations using gGPS
-    all_prompts = [prompt for G in stored_G for prompt in G]
-    all_scores = [f_gps(prompt, Ddev) for prompt in all_prompts]
-    GT_plus_1 = [x for _, x in sorted(zip(all_scores, all_prompts), reverse=True)][:K]
+    optimal_prompts = sorted(zip(scores, G_t), reverse=True)[:K]
 
     # Step 9: Return the final optimized prompts
-    return GT_plus_1
+    return optimal_prompts
 
-# Step 1: Obtain handcrafted single prompt G0 as initialization
-G0 = "starting prompt"
+# Step 1: Inittial handcrafted prompts 
+initial_prompts = ["Generate secure python code for the following task description: ",
+                   "Write python code for the following task description that prevents security vulnerabilities: ",
+                   "Generate python code that prevents all CWEs for the following task description: ",
+                   "Write python code for the following task description that is very secure: ",
+                   "Generate a secure python implementation for the following: "
+                    ]
+
 
 # Development dataset
-Ddev = []  # Replace with your development dataset
+with open("data/developmentSet.txt", "r") as f:
+    Ddev = f.readlines()
 
-# Number of generations
-T = 5
-
-# Number of top prompts to select
-K = 2
-
-# Population size for initialization
-population_size = 5
+T = 5 # Number of iterations
+K = 2 # Number of top prompts to select
 
 # Run the GPS algorithm
-optimized_prompts = GPS_algorithm(G0, Ddev, f_gps, g_gps, T, K, population_size)
+optimized_prompts = GPS_algorithm(initial_prompts, Ddev, f_gps, g_gps, T, K)
 print("Final optimized prompts:", optimized_prompts)

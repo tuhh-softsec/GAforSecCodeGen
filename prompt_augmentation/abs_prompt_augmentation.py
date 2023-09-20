@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 
 class AbstractPromptAugmentation(ABC):
 
-    def __init__(self):
-        self.created_prompts = []
+    created_prompts = []
 
     @abstractmethod
     def augment_prompt(self):
