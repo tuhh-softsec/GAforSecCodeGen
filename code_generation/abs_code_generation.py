@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import os
 import time
 
-class CodeGenerator(ABC):
+class AbstractCodeGenerator(ABC):
     def __init__(self, model_name):
         self.model_name = model_name
 

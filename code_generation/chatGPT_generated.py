@@ -1,13 +1,13 @@
 import openai
-from abs_code_generation import CodeGenerator
+from . abs_code_generation import AbstractCodeGenerator
 import os
 
-class CodeGenerator(CodeGenerator):
-    def __init__(self, api_key, model="gpt-3.5-turbo"):
+class CodeGenerator(AbstractCodeGenerator):
+    def __init__(self, api_key, model="gpt-3.5-turbo-instruct"):
         self.api_key = api_key
         self.model = model
 
-    def generate_code(self, prompt, max_tokens=50, temperature=0.7):
+    def generate_code(self, prompt, max_tokens=100, temperature=0.7):
         openai.api_key = self.api_key
 
         response = openai.Completion.create(
@@ -24,12 +24,13 @@ class CodeGenerator(CodeGenerator):
             return None
     
 
-    def write_code_to_file(self, prompt_id, prompt, code):
+    def write_code_to_file(self, prompt_task_id, prompt, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
-        output_dir = "../output/"
+        print(f"Writing code for {prompt_task_id} to file")
+        output_dir = "../output"
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
         
-        filepath = os.path.join(output_dir, f"{prompt_id}.py")
+        filepath = os.path.join(output_dir, f"{prompt_task_id}.py")
         try:
             with open(filepath, "a", encoding='utf-8') as f:
                 f.write(f"#Prompt: {prompt}\n")
@@ -37,11 +38,11 @@ class CodeGenerator(CodeGenerator):
             return filepath
         except Exception as e:
             print(f"Failed to write to file: {e}")
-            return None
+            
 
 
 if __name__ == "__main__":
-    api_key = "YOUR_API_KEY_HERE"  # Replace with your OpenAI API key
+    api_key = ""  # Replace with your OpenAI API key
     code_generator = CodeGenerator(api_key)
 
     prompt = """

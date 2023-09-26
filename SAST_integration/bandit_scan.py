@@ -46,8 +46,9 @@ class BanditScan():
             "issue_count": issue_count,
             "issues": issues
         }
-
-        self.bandit_output_dict[prompt_id] = final_output
+        return final_output
+        # self.bandit_output_dict[prompt_id].append(final_output)
+        
 
 
 
