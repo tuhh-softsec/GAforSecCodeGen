@@ -1,5 +1,8 @@
 from transformers import MarianMTModel, MarianTokenizer
 from . abs_prompt_augmentation import AbstractPromptAugmentation
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 MAX_LENGTH = 150 # length of the prompts
 

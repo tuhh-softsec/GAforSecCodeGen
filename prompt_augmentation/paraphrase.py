@@ -1,8 +1,11 @@
-from transformers import *
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from . abs_prompt_augmentation import AbstractPromptAugmentation
 import logging
 from transformers import logging as transformers_logging
 from transformers import GenerationMixin
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Disable logging
 logging.basicConfig(level=logging.ERROR)

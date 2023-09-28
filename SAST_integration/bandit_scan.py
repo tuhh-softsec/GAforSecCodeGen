@@ -1,5 +1,6 @@
 import subprocess
 import json
+import os
 
 
 class BanditScan():
@@ -9,15 +10,22 @@ class BanditScan():
         self.bandit_output_dict = {}
 
    
-    def run_bandit(self, filepath):
+    def run_bandit(self, filepath, prompt_task_id):
         """ run bandit on a python code file and save the results to a json object """
-        cmd = f"bandit -r -f json {filepath}"
+        output_dir = "output/bandit"
+        os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
+        bandit_output_filepath = os.path.join(output_dir, f"{prompt_task_id}.json")
+        print(f"Bandit scanning in progress for file {filepath}......")
+        cmd = f"bandit -r -f json {filepath} -o {bandit_output_filepath}"
+            
         try:
             result = subprocess.run(
                 cmd, shell=True, text=True, capture_output=True) # need to add check=True as well to the arugment. But later
-            return json.loads(result.stdout)
+            with open(bandit_output_filepath, 'r') as file:
+                return json.load(file)
+            # return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            print(f"Bnadit scan failed: {e.stderr}")
+            print(f"Bandit scan failed: {e.stderr}")
             return None
         
         
@@ -55,13 +63,16 @@ class BanditScan():
 
 if __name__ == "__main__":
     # Replace with the path to the code file or directory you want to scan
-    code_file = "test-file.py"
+    code_file = "SAST_integration/test-file.py"
     scan = BanditScan()
-    output = scan.run_bandit(code_file)
+    #output = scan.run_bandit(code_file)
     prompt = "adsgfhdghs"
     prompt_id = "1_3"
-    scan.process_scan_output(prompt_id, prompt, output)
-    print(scan.bandit_output_dict)
+    output = scan.run_bandit(code_file, prompt_id)
+    print(f"output from the bandit scan: {output}")
+    final_output = scan.process_scan_output(prompt_id, prompt, output)
+    print(f"processed final outout: {final_output}")
+    #print(scan.bandit_output_dict)
     # if isinstance(output, dict):
     #     print(json.dumps(output, indent=4))
     # else:

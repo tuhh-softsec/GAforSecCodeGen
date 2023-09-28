@@ -29,15 +29,15 @@ def f_gps(prompt_id, prompt, D_dev):
     # calculate score for each code task in D_dev and sum it up
     for template in D_dev_task_templates:
         # generate code for the task template
-        code = code_generator.generate_code(template)
         prompt_task_id = f"{prompt_id}_{template_number}"
+        code = code_generator.generate_code(template, prompt_task_id)
         template_number += 1
         if code:
             # write the generated code to a python file
             code_file_path = code_generator.write_code_to_file(prompt_task_id, prompt, code)
             if code_file_path:
                 # perform bandit scan on the generated python file
-                scan_output = bandit_scan.run_bandit(filepath=code_file_path)
+                scan_output = bandit_scan.run_bandit(filepath=code_file_path, prompt_task_id=prompt_task_id)
                 # add the scan output to the dictionary containing several prompt score infromation
                 if scan_output:
                     processed_bandit_output = bandit_scan.process_scan_output(prompt_id=prompt_id, prompt=prompt, bandit_output=scan_output)
@@ -100,6 +100,8 @@ def GPS_algorithm(G_0, Ddev, T, K):
         scores = [f_gps(f"{t}_{index}", prompt, Ddev) for index, prompt in enumerate(G_t)]
         
         # Select top K prompts as reproductive group along with their scores
+        print("Sorted G_T with scores:")
+        print(sorted(zip(scores, G_t)))
         reproductive_group = sorted(zip(scores, G_t))[:K]
         print(f"Top {K} prompts in iteration {t}:")
         for score, prompt in reproductive_group:

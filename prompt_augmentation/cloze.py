@@ -2,6 +2,9 @@ from transformers import BertTokenizer, BertForMaskedLM
 from . abs_prompt_augmentation import AbstractPromptAugmentation
 import torch
 import random
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Cloze(AbstractPromptAugmentation):
 
