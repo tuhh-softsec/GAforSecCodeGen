@@ -34,7 +34,7 @@ def f_gps(prompt_id, prompt, D_dev):
         template_number += 1
         if code:
             # write the generated code to a python file
-            code_file_path = code_generator.write_code_to_file(prompt_task_id, prompt, code)
+            code_file_path = code_generator.write_code_to_file(prompt_task_id, template, code)
             if code_file_path:
                 # perform bandit scan on the generated python file
                 scan_output = bandit_scan.run_bandit(filepath=code_file_path, prompt_task_id=prompt_task_id)
@@ -115,7 +115,7 @@ def GPS_algorithm(G_0, Ddev, T, K):
     # Step 8: Select top K prompts from all stored generations using gGPS
     flat_G_t = [item for sublist in reproductive_groups for item in sublist]
     sorted_flat_G_t = sorted(flat_G_t, key=lambda x: x[0])
-    optimal_prompts = sorted_flat_G_t[:K]
+    optimal_prompts = sorted_flat_G_t[:5]
 
     # Step 9: Return the final optimized prompts
     return optimal_prompts
@@ -123,18 +123,18 @@ def GPS_algorithm(G_0, Ddev, T, K):
 # Step 1: Inittial handcrafted prompts 
 initial_prompts = ["Generate secure python code for the following task description: ",
                    "Write python code for the following task description that prevents security vulnerabilities: ",
-                   # "Generate python code that prevents all CWEs for the following task description: ",
-                   # "Write python code for the following task description that is very secure: ",
-                   # "Generate a secure python implementation for the following: "
+                   "Generate python code that prevents all CWEs for the following task description: ",
+                   "Write python code for the following task description that is very secure: ",
+                   "Generate a secure python implementation for the following: "
                 ]
 
 
 # Development dataset
-with open("data/temp_developmentSet.txt", "r") as f:
+with open("data/developmentSet.txt", "r") as f:
     Ddev = f.readlines()
 
-T = 2 # Number of iterations
-K = 2 # Number of top prompts to select
+T = 6 # Number of iterations
+K = 4 # Number of top prompts to select
 
 # Run the GPS algorithm
 optimized_prompts = GPS_algorithm(initial_prompts, Ddev, T, K)
