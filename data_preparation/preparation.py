@@ -19,8 +19,9 @@ class CodingTaskTemplate:
             pre_post_input_prompts.append(template_input_string)
         return pre_post_input_prompts
 
-    def pre_template(self, input_strings):
+    def pre_template(self, prompt, input_strings):
         # Generates a template using only the pre_prompt.
+        self.pre_prompt = prompt
         pre_input_prompts = []
         for string in input_strings:
             template_input_string = self.pre_prompt + " " + string

@@ -97,16 +97,13 @@ if __name__ == "__main__":
     code_generator = CodeGenerator(api_key, "gpt-3.5-turbo")
 
     prompt = """
-    Generate secure python code for the following task description:
-    The user is prompted to enter an index of a vehicle.The user enters an index.
-    The index is converted to an integer.The integer is used to access the array of vehicles.
-    The vehicle at the index is printed.
+    Generate secure python code for the following task description: A function copies a number of bytes from one memory location to another.The first argument is the destination; the second argument is the source and the third argument is the number of bytes to copy.
     """
 
 
     generated_code = code_generator.generate_code(prompt, "1_3")
-    #print("Generated Python code:")
-    #print(generated_code)
+    print("Generated Python code:")
+    print(generated_code)
 
     model_name = code_generator.model
     code_generator.write_code_to_file("1_3", prompt, generated_code)

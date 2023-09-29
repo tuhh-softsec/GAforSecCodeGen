@@ -24,7 +24,7 @@ def f_gps(prompt_id, prompt, D_dev):
     bandit_scan.bandit_output_dict[prompt_id] = []
     # joining the preprompt with the code tasks in the D_dev
     template = CodingTaskTemplate()
-    D_dev_task_templates = template.pre_template(D_dev)
+    D_dev_task_templates = template.pre_template(prompt, D_dev)
 
     # calculate score for each code task in D_dev and sum it up
     for template in D_dev_task_templates:
@@ -90,7 +90,7 @@ def GPS_algorithm(G_0, Ddev, T, K):
     G_t = G_0
     stored_G = []
     reproductive_groups = []
-
+    f = open("output/prompts.txt", "a+")
     
     for t in range(T+1):
         print(f"Iteration {t} in progress...")
@@ -111,6 +111,8 @@ def GPS_algorithm(G_0, Ddev, T, K):
         # Generate G_t+1 based on reproductive group using gGPS
         top_prompts = [x[1] for x in reproductive_group]
         G_t = g_gps(top_prompts)
+        for item in G_t:
+            f.write(item)
    
     # Step 8: Select top K prompts from all stored generations using gGPS
     flat_G_t = [item for sublist in reproductive_groups for item in sublist]
@@ -139,3 +141,6 @@ K = 4 # Number of top prompts to select
 # Run the GPS algorithm
 optimized_prompts = GPS_algorithm(initial_prompts, Ddev, T, K)
 print("Final optimized prompts:", optimized_prompts)
+with open("output/optimal_prompts.txt", "a+") as f1:
+    for item in optimized_prompts:
+        f1.write(item)
