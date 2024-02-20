@@ -12,7 +12,7 @@ class BanditScan():
    
     def run_bandit(self, filepath, prompt_task_id):
         """ run bandit on a python code file and save the results to a json object """
-        output_dir = "output/bandit"
+        output_dir = "output/bandit/evaluation/gps-1"
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
         bandit_output_filepath = os.path.join(output_dir, f"{prompt_task_id}.json")
         print(f"Bandit scanning in progress for file {filepath}......")
@@ -38,15 +38,19 @@ class BanditScan():
         # Extract and count the issues
         issue_count = len(bandit_output["results"])     
         # Create a list to store the issues
-        issues = [
-            {
-                "severity": issue["issue_severity"],
-                "confidence": issue["issue_confidence"],
-                "issue_cwe": issue["issue_cwe"]["id"],
-                "issue_text": issue["issue_text"]
-            }
-            for issue in bandit_output["results"]
-        ]
+
+        if issue_count == 0:
+            issues = []
+        else: 
+            issues = [
+                {
+                    "severity": issue["issue_severity"],
+                    "confidence": issue["issue_confidence"],
+                    "issue_cwe": issue["issue_cwe"]["id"],
+                    "issue_text": issue["issue_text"]
+                }
+                for issue in bandit_output["results"]
+            ]
 
         # Create the final JSON object
         final_output = {

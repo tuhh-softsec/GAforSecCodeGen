@@ -1,56 +1,57 @@
-import openai
+import requests
+import json
 import os
 from time import sleep
 import re
 
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class CodeGenerator():
-    def __init__(self, api_key, model="gpt-3.5-turbo") -> None:
+    def __init__(self, api_key="", model="codellama") -> None:
         self.api_key = api_key
         self.model = model
     
 
     def generate_code(self, task_prompt, task_prompt_id):
         
-        user_task_prompt = self.wrap_request("user", task_prompt)
-        msgs = [user_task_prompt]
-        openai.api_key = self.api_key
+        url = 'http://localhost:11434/api/generate'
         success = False
         while not success:
             try:
                 # sleep(20)
-                response = openai.ChatCompletion.create(
-                    model = self.model,
-                    messages = msgs,
-                    temperature = 0.5,
-                    top_p = 0.1
-                )
-                success = True
+                payload = {
+                    "model": "codellama",
+                    "prompt": task_prompt,
+                    "stream": False
+                }
+                response = requests.post(url, json=payload)
+                response.raise_for_status()
+                if response.status_code == 200:
+                    success = True
                 if "<span " in response:
                     print(f"Access error for prompt {task_prompt_id}... Waiting....")
                     sleep(65)
                     print("...continue...")
 
-            except openai.error.RateLimitError:
-                print(f"RateLimitError for prompt {task_prompt_id},... Waiting....")
+            except requests.exceptions.HTTPError:
+                print(f"HTTPErros for prompt {task_prompt_id},... Waiting....")
                 sleep(65)  # wait for 1 min to reset ratelimit
                 print("...continue")
-            except openai.error.APIError:
-                print(f"API error for prompt {task_prompt_id},... Waiting....")
+            except requests.exceptions.ConnectionError:
+                print(f"Connection error for prompt {task_prompt_id},... Waiting....")
                 sleep(180)  # wait for 1 min to reset ratelimit
                 print("...continue")
-            except openai.error.ServiceUnavailableError:
-                print(f"Serveroverloaded for prompt {task_prompt_id}... waiting...")
+            except requests.exceptions.RequestException:
+                print(f"Request error for prompt {task_prompt_id}... waiting...")
                 sleep(65)  # wait for 1 min to reset ratelimit
                 print("...continue")
-            except openai.error.Timeout:
+            except requests.exceptions.Timeout:
                 print(f"Timeout for prompt {task_prompt_id}... waiting...")
                 sleep(65)  # wait for 1 min to reset ratelimit
                 print("...continue")
+            
         
-        if response.choices:
-            code = response.choices[0]["message"]["content"]
+        if response.json()["response"]:
+            code = response.json()["response"]
             return code
         else:
             return None
@@ -64,7 +65,7 @@ class CodeGenerator():
     def write_code_to_file(self, prompt_task_id, task_prompt, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
         print(f"Writing code for {prompt_task_id} to file")
-        output_dir = "output/code/evaluation/gps-1"
+        output_dir = "output/code/test-training/codellama/gps-1"
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
         # success = False
         # generation_attempts = 0
@@ -79,7 +80,7 @@ class CodeGenerator():
         #     else:
         #         success = True
         code_blocks = []
-        code_blocks = re.findall(r'```python(.*?)```', code, re.DOTALL)
+        code_blocks = re.findall(r'```(.*?)```', code, re.DOTALL)
         # check if code_blocks is empty
         if all(not block.strip() for block in code_blocks):
             code_blocks.append(code)
@@ -102,7 +103,7 @@ class CodeGenerator():
 
 if __name__ == "__main__":
     api_key = ""  # Replace with your OpenAI API key
-    code_generator = CodeGenerator(api_key, "gpt-3.5-turbo")
+    code_generator = CodeGenerator(api_key, "codellama")
 
     pre_prompt = "Enter a Python code for the following task description, which is not safe:"
 

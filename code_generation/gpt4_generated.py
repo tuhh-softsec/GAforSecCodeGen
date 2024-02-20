@@ -6,12 +6,12 @@ import re
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class CodeGenerator():
-    def __init__(self, api_key, model="gpt-3.5-turbo") -> None:
+    def __init__(self, api_key, model="gpt-4-1106-preview") -> None:
         self.api_key = api_key
         self.model = model
     
 
-    def generate_code(self, task_prompt, task_prompt_id):
+    def generate_response(self, task_prompt, task_prompt_id):
         
         user_task_prompt = self.wrap_request("user", task_prompt)
         msgs = [user_task_prompt]
@@ -23,7 +23,7 @@ class CodeGenerator():
                 response = openai.ChatCompletion.create(
                     model = self.model,
                     messages = msgs,
-                    temperature = 0.5,
+                    temperature = 0.0,
                     top_p = 0.1
                 )
                 success = True
@@ -50,8 +50,8 @@ class CodeGenerator():
                 print("...continue")
         
         if response.choices:
-            code = response.choices[0]["message"]["content"]
-            return code
+            response_content = response.choices[0]["message"]["content"]
+            return response_content
         else:
             return None
 
@@ -64,27 +64,15 @@ class CodeGenerator():
     def write_code_to_file(self, prompt_task_id, task_prompt, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
         print(f"Writing code for {prompt_task_id} to file")
-        output_dir = "output/code/evaluation/gps-1"
+        output_dir = "output/code/training/gps-1"
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
-        # success = False
-        # generation_attempts = 0
-        # while not success and generation_attempts <= 2:
-
-        #     code_blocks = re.findall(r'```python(.*?)```', code, re.DOTALL)
-        #     # check if code_blocks is empty
-        #     if all(not block.strip() for block in code_blocks):
-        #         # regenerate the code for the prompt if the code_block is empty
-        #         code = self.generate_code(task_prompt=task_prompt, task_prompt_id=prompt_task_id)
-        #         generation_attempts +=1
-        #     else:
-        #         success = True
         code_blocks = []
         code_blocks = re.findall(r'```python(.*?)```', code, re.DOTALL)
         # check if code_blocks is empty
         if all(not block.strip() for block in code_blocks):
             code_blocks.append(code)
 
-
+        #filename = f"{file_prefix}_{prompt_task_id}"
         filepath = os.path.join(output_dir, f"{prompt_task_id}.py")
         # filepath = f"{prompt_task_id}.py"
         print(filepath)
