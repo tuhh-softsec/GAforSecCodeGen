@@ -1,0 +1,16 @@
+filepaths:
+  final_optimal_prompts_file: "output/optimal_prompts.txt"
+  development_set_file: "data/temp_developmentSet.txt"
+  reproductive_group_file: "output/generated-prompts-1.txt"
+  prompts_with_scores_file: "output/gen_prompts_with_scores-1-test.txt"
+  gen_code_output_dir: "output/code/"
+  bandit_output_dir: "output/bandit/"
+  test_set_file: "data/test_set.txt"
+  test_prompts_file: "data/optimal_prompts.txt"
+  evaluation_results_file: "output/optimal_prompt_evaluation.txt"
+
+OpenAI_API_Key: "" # your open ai key
+
+GPS_parameters:
+  iterations: 6
+  K: 4
