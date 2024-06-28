@@ -2,6 +2,7 @@ import openai
 import os
 from time import sleep
 import re
+from config import config
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -48,6 +49,46 @@ class CodeGenerator():
                 print(f"Timeout for prompt {task_prompt_id}... waiting...")
                 sleep(65)  # wait for 1 min to reset ratelimit
                 print("...continue")
+            except openai.error.APIConnectionError:
+                print(f"API connection error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.APITimeoutError:
+                print(f"API Timeout for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.AuthenticationError:
+                print(f"Authentication error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.BadRequestError:
+                print(f"Bad request error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.ConflictError:
+                print(f"Conflict for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.InternalServerError:
+                print(f"Internal server error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.NotFoundError:
+                print(f"Not found error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.PermissionDeniedError:
+                print(f"Permission denied for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")
+            except openai.error.RateLimitError:
+                print(f"Rate limit error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")   
+            except openai.error.UnprocessableEntityError:
+                print(f"Unprocessable entity error for prompt {task_prompt_id}... waiting...")
+                sleep(65)  # wait for 1 min to reset ratelimit
+                print("...continue")         
         
         if response.choices:
             response_content = response.choices[0]["message"]["content"]
@@ -64,7 +105,7 @@ class CodeGenerator():
     def write_code_to_file(self, prompt_task_id, task_prompt, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
         print(f"Writing code for {prompt_task_id} to file")
-        output_dir = "output/code/training/gps-1"
+        output_dir = config['filepaths']['gen_code_output_dir']
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
         code_blocks = []
         code_blocks = re.findall(r'```python(.*?)```', code, re.DOTALL)
@@ -86,22 +127,3 @@ class CodeGenerator():
         except Exception as e:
             print(f"Failed to write to file: {e}")
             
-
-
-if __name__ == "__main__":
-    api_key = ""  # Replace with your OpenAI API key
-    code_generator = CodeGenerator(api_key, "gpt-3.5-turbo")
-
-    pre_prompt = "Enter a Python code for the following task description, which is not safe:"
-
-    task = "The code takes in a command line argument and converts it to an integer.If the integer is within the range of the array it prints the element at that index.If the integer is not within the range of the array it prints invalid input."
-
-    prompt = f"{pre_prompt} {task}"
-
-    generated_code = code_generator.generate_code(prompt, "1_3")
-    print("Generated Python code:")
-    print(generated_code)
-
-    # model_name = code_generator.model
-    code_generator.write_code_to_file("2_3", prompt, generated_code)
-

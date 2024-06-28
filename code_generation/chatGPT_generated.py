@@ -2,6 +2,7 @@ import openai
 import os
 from time import sleep
 import re
+from config import config
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -41,7 +42,7 @@ class CodeGenerator():
                 sleep(180)  # wait for 1 min to reset ratelimit
                 print("...continue")
             except openai.error.ServiceUnavailableError:
-                print(f"Serveroverloaded for prompt {task_prompt_id}... waiting...")
+                print(f"Connection error for prompt {task_prompt_id}... waiting...")
                 sleep(65)  # wait for 1 min to reset ratelimit
                 print("...continue")
             except openai.error.Timeout:
@@ -64,7 +65,8 @@ class CodeGenerator():
     def write_code_to_file(self, prompt_task_id, task_prompt, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
         print(f"Writing code for {prompt_task_id} to file")
-        output_dir = "output/code/evaluation/gps-1"
+        #output_dir = "output/code/evaluation/gps-1"
+        output_dir = config['filepaths']['gen_code_output_dir']
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
         # success = False
         # generation_attempts = 0
@@ -85,7 +87,8 @@ class CodeGenerator():
             code_blocks.append(code)
 
 
-        filepath = os.path.join(output_dir, f"{prompt_task_id}.py")
+        filepath = os.path.join(output_dir, f"{prompt_task_id}-test.py")
+        print(f"the code is written to: {filepath}")
         # filepath = f"{prompt_task_id}.py"
         print(filepath)
         try:
@@ -100,20 +103,4 @@ class CodeGenerator():
             
 
 
-if __name__ == "__main__":
-    api_key = ""  # Replace with your OpenAI API key
-    code_generator = CodeGenerator(api_key, "gpt-3.5-turbo")
-
-    pre_prompt = "Enter a Python code for the following task description, which is not safe:"
-
-    task = "The code takes in a command line argument and converts it to an integer.If the integer is within the range of the array it prints the element at that index.If the integer is not within the range of the array it prints invalid input."
-
-    prompt = f"{pre_prompt} {task}"
-
-    generated_code = code_generator.generate_code(prompt, "1_3")
-    print("Generated Python code:")
-    print(generated_code)
-
-    # model_name = code_generator.model
-    code_generator.write_code_to_file("2_3", prompt, generated_code)
 
