@@ -5,7 +5,7 @@ filepaths:
   prompts_with_scores_file: "output/gen_prompts_with_scores-1-test.txt"
   gen_code_output_dir: "output/code/"
   bandit_output_dir: "output/bandit/"
-  test_set_file: "data/test_set.txt"
+  test_set_file: "data/testSet.txt"
   test_prompts_file: "data/optimal_prompts.txt"
   evaluation_results_file: "output/optimal_prompt_evaluation.txt"
 
