@@ -4,6 +4,7 @@ import torch
 import random
 import os
 
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Cloze(AbstractPromptAugmentation):
@@ -37,11 +38,3 @@ class Cloze(AbstractPromptAugmentation):
             prompt = prompt.replace(self.mask_token, predicted_word, 1)
 
         return prompt
-
-if __name__ == "__main__":
-    
-    cloze = Cloze()
-    original_prompt = "The quick brown fox jumps over the lazy dog."
-    augmented_prompt = cloze.augment_prompt(original_prompt)
-    print(f"Original Prompt: {original_prompt}")
-    print(f"Augmented Prompt: {augmented_prompt}")

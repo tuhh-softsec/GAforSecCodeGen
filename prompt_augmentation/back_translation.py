@@ -2,6 +2,7 @@ from transformers import MarianMTModel, MarianTokenizer
 from . abs_prompt_augmentation import AbstractPromptAugmentation
 import os
 
+
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 MAX_LENGTH = 150 # length of the prompts
@@ -32,16 +33,3 @@ class BackTranslation(AbstractPromptAugmentation):
         back_translated_text = tokenizer_bwd.decode(back_translation[0], skip_special_tokens=True)
         
         return back_translated_text
-
-
-if __name__ == "__main__":
-    translate = BackTranslation()
-    
-    prompt = "The quick brown fox jumps over the lazy dog."
-    #languages = ['fr', 'de', 'es', 'it']
-    back_translations = {}
-
-    for lang in translate.languages:
-        back_translations[lang] = translate.augment_prompt(prompt, target_lang=lang)
-        print(f"Back translated using {lang}: {back_translations[lang]}")
-

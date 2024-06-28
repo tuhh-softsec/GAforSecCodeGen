@@ -30,11 +30,3 @@ class Paraphraser(AbstractPromptAugmentation):
         
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-
-if __name__ == "__main__": 
-    
-    paraphrase = Paraphraser()
-    prompt = "The quick brown fox jumps over the lazy dog."
-    augmented_prompts = paraphrase.augment_prompt(prompt, num_beams=5, num_return_sequences=5)
-    print(augmented_prompts)
-    
