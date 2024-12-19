@@ -43,7 +43,7 @@ class GPS:
         return unique_prompts
 
     def calculate_prompt_fitness(self, prompt_id: str, prompt: str, dev_set: List[str]) -> int:
-        """Calculate the fitness score for a single prompt."""
+        """Calculate the fitness score for a single prompt based on the training set."""
         prompt_score = 0
         code_error = True
         code_error_count = 0
@@ -54,7 +54,7 @@ class GPS:
         for template_num, template in enumerate(dev_set_templates, 1):
             prompt_task_id = f"{prompt_id}_{template_num}"
             score = self._process_single_template(
-                template, prompt_task_id, prompt_id, prompt
+                template, prompt_task_id, prompt
             )
 
             if score is not None:
@@ -74,7 +74,7 @@ class GPS:
         return prompt_score
 
     def _process_single_template(
-        self, template: str, prompt_task_id: str, prompt_id: str, prompt: str
+        self, template: str, prompt_task_id: str, prompt: str
     ) -> Optional[int]:
         """Process a single template and return its score."""
         code = self.code_generator.generate_code(template, prompt_task_id)
@@ -102,11 +102,11 @@ class GPS:
             return 10
 
         processed_output = self.bandit_scan.process_scan_output(
-            prompt_id=prompt_id,
+            prompt_task_id=prompt_task_id,
             prompt=prompt,
             bandit_output=scan_output
         )
-        return self.scoring.bandit_score(prompt_id, processed_output)
+        return self.scoring.bandit_score(prompt_task_id, processed_output)
 
     def augment_prompts(self, prompts: List[str]) -> List[str]:
         """Augment the given prompts using multiple techniques."""
@@ -157,7 +157,7 @@ class GPS:
         return results
 
     def optimize(self, dev_set: List[str]) -> List[Tuple[int, str]]:
-        """Run the GPS algorithm to optimize prompts."""
+        """Run the optimization algorithm to optimize prompts."""
         self.logger.info("Starting GPS algorithm optimization")
 
         G_t = self.initial_prompts
@@ -198,6 +198,8 @@ class GPS:
         self.logger.info(f"Top {self.k} prompts in iteration {iteration}:")
         for score, prompt in group:
             self.logger.info(f"Prompt: {prompt}, Score: {score}")
+        with open(config.reproductive_group_file, "a+") as f:
+            f.write(f"Iteration {iteration}: {group}\n")
 
 
 def main():
