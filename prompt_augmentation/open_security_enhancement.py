@@ -36,6 +36,12 @@ class SecurityPromptAugmenter(AbstractPromptAugmentation):
                 input_text,
                 generation_config={
                     'temperature': 0.7,
+                },
+                safety_settings={
+                    "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
+                    "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
+                    "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
+                    "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE"
                 }
             )
             variations.append(response.text)
