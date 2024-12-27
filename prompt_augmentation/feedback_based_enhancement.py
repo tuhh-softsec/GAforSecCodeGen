@@ -8,7 +8,7 @@ import random
 from config import config
 
 
-class SecurityPromptAugmenter(AbstractPromptAugmentation):
+class FeedbackBasedEnhancement(AbstractPromptAugmentation):
     def __init__(self):
         super().__init__()
         load_dotenv()

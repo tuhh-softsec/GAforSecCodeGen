@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 
-class SecurityPromptAugmenter(AbstractPromptAugmentation):
+class OpenSecurityEnhancement(AbstractPromptAugmentation):
     def __init__(self):
         super().__init__()
         load_dotenv()
