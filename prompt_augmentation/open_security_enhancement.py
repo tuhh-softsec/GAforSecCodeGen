@@ -19,7 +19,7 @@ class OpenSecurityEnhancement(AbstractPromptAugmentation):
 
         Input: Generate python code for the given task description that prevents security vulnerabilities.
         Output: Write secure python code for the given task description by eliminating the top 25 CWEs to make the generated code more secure.
-        Like the above examples, generate security-enhanced variations of this code generation prompt to prevent security vulnerabilities.
+        Like the above examples, generate security-enhanced variations of this prompt to prevent security vulnerabilities.
         Input: """
         post_prompt = "Output: "
 

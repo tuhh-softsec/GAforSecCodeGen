@@ -28,6 +28,14 @@ class Config:
         return self.config['filepaths']['prompts_with_scores_file']
 
     @property
+    def G_t_for_iteration_prev_t_file(self):
+        return self.config['filepaths']['G_t_for_iteration_prev_t_file']
+
+    @property
+    def G_t_for_iteration_t_file(self):
+        return self.config['filepaths']['G_t_for_iteration_t_file']
+
+    @property
     def gen_code_output_dir(self):
         return self.config['filepaths']['gen_code_output_dir']
 
@@ -62,6 +70,10 @@ class Config:
     @property
     def optimization_k(self):
         return self.config['GPS_parameters']['K']
+
+    @property
+    def iteration_t(self):
+        return self.config['GPS_parameters']['t']
 
 
 config = Config()
