@@ -1,6 +1,6 @@
 import google.generativeai as genai
 from typing import List
-from .abs_prompt_augmentation import AbstractPromptAugmentation
+from .abs_prompt_mutation import AbstractPromptMutation
 import os
 from dotenv import load_dotenv
 import json
@@ -9,7 +9,7 @@ from config import config
 import re
 
 
-class FeedbackBasedEnhancement(AbstractPromptAugmentation):
+class FeedbackBasedEnhancement(AbstractPromptMutation):
     def __init__(self):
         super().__init__()
         load_dotenv()
@@ -34,7 +34,7 @@ class FeedbackBasedEnhancement(AbstractPromptAugmentation):
         
         return random.sample(warnings, num_warnings)
 
-    def augment_prompt(self, prompt: str, iteration: int, num_variations: int = 4) -> List[str]:
+    def mutate_prompt(self, prompt: str, iteration: int, num_variations: int = 4) -> List[str]:
         all_warnings = []
         # read bandit results in the directory that starts with the iteration number
         for file in os.listdir(config.bandit_output_dir):
@@ -112,11 +112,11 @@ class FeedbackBasedEnhancement(AbstractPromptAugmentation):
 
 
 def main():
-    augmenter = FeedbackBasedEnhancement()
+    mutator = FeedbackBasedEnhancement()
 
     test_prompt = """Generate secure python code for the given task description: """
 
-    variations = augmenter.augment_prompt(test_prompt, 1)
+    variations = mutator.mutate_prompt(test_prompt, 1)
 
     print("Raw model outputs:")
     print("=" * 50)
