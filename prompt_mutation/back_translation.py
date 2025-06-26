@@ -1,5 +1,5 @@
 from transformers import MarianMTModel, MarianTokenizer
-from . abs_prompt_augmentation import AbstractPromptAugmentation
+from .abs_prompt_mutation import AbstractPromptMutation
 import os
 
 
@@ -7,13 +7,13 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 MAX_LENGTH = 150 # length of the prompts
 
-class BackTranslation(AbstractPromptAugmentation):
+class BackTranslation(AbstractPromptMutation):
 
     def __init__(self):
         self.languages = ['fr', 'de', 'es', 'it']
         super().__init__()
 
-    def augment_prompt(self, prompt, source_lang='en', target_lang='fr'):
+    def mutate_prompt(self, prompt, source_lang='en', target_lang='fr'):
         # Translate English to Target Language
         model_name_fwd = f'Helsinki-NLP/opus-mt-{source_lang}-{target_lang}'
         model_fwd = MarianMTModel.from_pretrained(model_name_fwd)

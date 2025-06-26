@@ -1,5 +1,5 @@
 from transformers import BertTokenizer, BertForMaskedLM
-from . abs_prompt_augmentation import AbstractPromptAugmentation
+from .abs_prompt_mutation import AbstractPromptMutation
 import torch
 import random
 import os
@@ -7,7 +7,7 @@ import os
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-class Cloze(AbstractPromptAugmentation):
+class Cloze(AbstractPromptMutation):
 
     def __init__(self, model_name="bert-base-uncased"):
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
@@ -16,7 +16,7 @@ class Cloze(AbstractPromptAugmentation):
         self.mask_token = self.tokenizer.mask_token  # [MASK] token for BERT
         super().__init__()
 
-    def augment_prompt(self, prompt):
+    def mutate_prompt(self, prompt):
         
         words = prompt.split()
         num_words_to_mask = random.randint(1, 3)

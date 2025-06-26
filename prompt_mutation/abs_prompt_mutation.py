@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-class AbstractPromptAugmentation(ABC):
+class AbstractPromptMutation(ABC):
 
     created_prompts = []
 
     @abstractmethod
-    def augment_prompt(self):
+    def mutate_prompt(self):
         pass
 
     def remove_duplicate_prompts(self, prompts):
@@ -14,9 +14,9 @@ class AbstractPromptAugmentation(ABC):
         self.created_prompts.extend(unique_prompts)
         return unique_prompts
     
-    def prompts_to_file(self, augmentation_technique):
+    def prompts_to_file(self, mutation_technique):
         # write all the newly created prompts to a file
-        filepath = "../output/" + augmentation_technique + "_prompts.txt"
+        filepath = "../output/" + mutation_technique + "_prompts.txt"
         with open(filepath, 'w') as f:
             for prompt in self.created_prompts:
                 f.write(prompt)
