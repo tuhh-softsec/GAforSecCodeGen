@@ -11,11 +11,11 @@ class BanditScan():
         self.bandit_output_dict = {}
 
    
-    def run_bandit(self, filepath, prompt_task_id):
+    def run_bandit(self, filepath, query_id):
         """ run bandit on a python code file and save the results to a json object """
-        output_dir = config['filepaths']['bandit_output_dir']
+        output_dir = config.bandit_output_dir
         os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exist
-        bandit_output_filepath = os.path.join(output_dir, f"{prompt_task_id}-test.json")
+        bandit_output_filepath = os.path.join(output_dir, f"{query_id}.json")
         print(f"Bandit scanning in progress for file {filepath}......")
         cmd = f"bandit -r -f json {filepath} -o {bandit_output_filepath}"
             
@@ -25,12 +25,12 @@ class BanditScan():
             with open(bandit_output_filepath, 'r') as file:
                 return json.load(file)
             # return json.loads(result.stdout)
-        except subprocess.CalledProcessError as e:
-            print(f"Bandit scan failed: {e.stderr}")
+        except Exception as e:
+            print(f"Bandit scan failed: {e}")
             return None
         
         
-    def process_scan_output(self, prompt_id, prompt, bandit_output):
+    def process_scan_output(self, query_id, prompt, bandit_output):
         """ add the prompt and the processed bandit json output to self.bandit_output_dict """
         # Convert string representation of JSON to Python dictionary (if necessary)
         if isinstance(bandit_output, str):
