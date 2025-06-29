@@ -1,8 +1,8 @@
 from query_preparation.preparation import CodingTaskTemplate
-from prompt_augmentation import back_translation, cloze, paraphrase, feedback_based_enhancement, open_security_enhancement
-from code_generation.deepseek_coder_api_generated import CodeGenerator
+from prompt_mutation import back_translation, cloze, paraphrase, feedback_guided, self_guided
+from code_generation.deepseeker_coder import CodeGenerator
 from SAST_integration.bandit_scan import BanditScan
-from prompt_scoring.bandit_score import PromptScoring
+from prompt_scoring.scoring import PromptScoring
 from config import config
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
@@ -11,7 +11,6 @@ import logging
 
 class OPS:
     def __init__(self):
-        """Initialize the GPS (Guided Prompt Search) optimizer."""
         self.iterations = config.optimization_iterations
         self.k = config.optimization_k
         self.initial_prompts = [
@@ -25,12 +24,12 @@ class OPS:
         # Initialize components
 
         self.code_generator = CodeGenerator()  # code generation component
-        # prompt augmentation components
+        # prompt mutation components
         self.back_translate = back_translation.BackTranslation()
-        self.cloze_augment = cloze.Cloze()
-        self.paraphrase_augment = paraphrase.Paraphraser()
-        self.feedback_enhancement = feedback_based_enhancement.FeedbackBasedEnhancement()
-        self.open_security_enhancement = open_security_enhancement.OpenSecurityEnhancement()
+        self.cloze_mutate= cloze.Cloze()
+        self.paraphrase_mutate= paraphrase.Paraphraser()
+        self.feedback_enhancement = feedback_guided.FeedbackBasedEnhancement()
+        self.open_security_enhancement = self_guided.OpenSecurityEnhancement()
 
         self.sast_scan = BanditScan()  # SAST component
         self.scoring = PromptScoring()  # prompt scoring component
@@ -82,7 +81,7 @@ class OPS:
         self, query: str, query_id: str, prompt: str
     ) -> Optional[int]:
         """Process a single query and return its score."""
-        code = self.code_generator.generate_code(query, query_id)
+        code = self.code_generator.generate_response(query, query_id)
         if not code:
             self.logger.warning(f"Code generation failed for {query_id}")
             return None
@@ -93,7 +92,7 @@ class OPS:
             self.logger.warning("Invalid code file path")
             return None
 
-        scan_output = self.sast_scan.run_sast(
+        scan_output = self.sast_scan.run_bandit(
             filepath=code_file_path,
             query_id=query_id
         )
@@ -113,24 +112,24 @@ class OPS:
         )
         return False, self.scoring.bandit_score(query_id, processed_output)
 
-    def augment_prompts(self, prompts: List[str], iteration: int) -> List[str]:
-        """Augment the given prompts using multiple techniques."""
-        augmented_prompts = []
+    def mutate_prompts(self, prompts: List[str], iteration: int) -> List[str]:
+        """mutatethe given prompts using multiple techniques."""
+        mutated_prompts = []
 
         for prompt in prompts:
-            augmented_prompts.extend(
-                self._apply_augmentations(prompt, iteration))
+            mutated_prompts.extend(
+                self._apply_mutations(prompt, iteration))
 
-        return self.remove_duplicate_prompts(augmented_prompts)
+        return self.remove_duplicate_prompts(mutated_prompts)
 
-    def _apply_augmentations(self, prompt: str, iteration: int) -> List[str]:
-        """Apply all augmentation techniques to a single prompt."""
+    def _apply_mutations(self, prompt: str, iteration: int) -> List[str]:
+        """Apply all mutation techniques to a single prompt."""
         results = []
 
         # Back translation
         for lang in self.back_translate.languages:
             try:
-                translated = self.back_translate.augment_prompt(
+                translated = self.back_translate.mutate_prompt(
                     prompt=prompt,
                     source_lang='en',
                     target_lang=lang
@@ -140,29 +139,30 @@ class OPS:
             except Exception as e:
                 self.logger.error(f"Back translation failed: {str(e)}")
 
-        # Cloze augmentation
+        # Cloze mutation
         for _ in range(4):
             try:
-                clozed = self.cloze_augment.augment_prompt(prompt)
+                clozed = self.cloze_mutate.mutate_prompt(prompt)
                 if isinstance(clozed, str):
                     results.append(clozed)
             except Exception as e:
-                self.logger.error(f"Cloze augmentation failed: {str(e)}")
+                self.logger.error(f"Cloze mutation failed: {str(e)}")
 
-        # Paraphrase augmentation
+        # Paraphrase mutation
         try:
-            paraphrased = self.paraphrase_augment.augment_prompt(
+            paraphrased = self.paraphrase_mutate.mutate_prompt(
                 prompt=prompt,
                 num_beams=5,
                 num_return_sequences=5
             )
             results.extend([p for p in paraphrased if isinstance(p, str)])
         except Exception as e:
-            self.logger.error(f"Paraphrase augmentation failed: {str(e)}")
+            self.logger.error(f"Paraphrase mutation failed: {str(e)}")
 
         try:
-            feedback_enhanced = self.feedback_enhancement.augment_prompt(
+            feedback_enhanced = self.feedback_enhancement.mutate_prompt(
                 prompt=prompt,
+                iteration=iteration,
                 num_variations=4
             )
             results.extend(feedback_enhanced)
@@ -170,7 +170,7 @@ class OPS:
             self.logger.error(f"Feedback enhancement failed: {str(e)}")
 
         try:
-            open_security_enhanced = self.open_security_enhancement.augment_prompt(
+            open_security_enhanced = self.open_security_enhancement.mutate_prompt(
                 prompt=prompt,
                 num_variations=4
             )
@@ -205,7 +205,7 @@ class OPS:
 
             # Generate next generation
             top_prompts = [x[1] for x in reproductive_group]
-            G_t = self.augment_prompts(top_prompts, t)
+            G_t = self.mutate_prompts(top_prompts, t)
 
         # Select final optimal prompts
         flat_groups = [item for group in reproductive_groups for item in group]
@@ -225,6 +225,13 @@ class OPS:
             with open(config.reproductive_group_file, "a+") as f:
                 f.write(f"Iteration {iteration}: Prompt: {
                         prompt}, Score: {score}\n")
+                
+    def _log_augmented_prompts(self, augmented_prompts: List[Tuple[str, str]], iteration: int):
+        """Log augmented prompts."""
+        with open(config.augmented_prompts_file, "a+") as f:
+            for prompt, technique in augmented_prompts:
+                f.write(f"Iteration {iteration}: Prompt: {prompt} : Technique: {technique})\n")
+
 
 
 def main():
@@ -232,7 +239,7 @@ def main():
     with open(config.development_set_file, "r") as f:
         dev_set = f.readlines()
 
-    # Run GPS optimization
+    # Run optimization
     ops = OPS()
     optimal_prompts = ops.optimize(dev_set)
 
