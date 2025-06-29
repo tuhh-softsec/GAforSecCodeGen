@@ -27,12 +27,15 @@ class FeedbackBasedEnhancement(AbstractPromptMutation):
         return warnings_per_file
 
     def select_n_warnings(self, warnings: List[str], num_warnings: int) -> List[str]:
-        # remove duplicate warnings
-        warnings = list(set(warnings))
-        if len(warnings) < num_warnings:
-            return warnings
-        
-        return random.sample(warnings, num_warnings)
+        # count the number of occurrences of each warning
+        warning_counts = {}
+        for warning in warnings:
+            warning_counts[warning] = warning_counts.get(warning, 0) + 1
+        # sort the warnings by the number of occurrences
+        sorted_warnings = sorted(warning_counts.items(), key=lambda x: x[1], reverse=True)
+        # return the top 5 most occuring warnings. if the number of warnings is less than 5, return all warnings
+        return [warning[0] for warning in sorted_warnings[:min(5, len(sorted_warnings))]]
+    
 
     def mutate_prompt(self, prompt: str, iteration: int, num_variations: int = 4) -> List[str]:
         all_warnings = []
