@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 
 from SAST_integration.bandit_scan import BanditScan
-from prompt_scoring.bandit_score import PromptScoring
+from prompt_scoring.scoring import PromptScoring
 from query_preparation.preparation import CodingTaskTemplate
 from code_generation.gemini_generated import CodeGenerator
 from config import config
@@ -40,7 +40,7 @@ class PromptEvaluator:
         # Generate code
         code = self.code_generator.generate_code(task_template, query_id)
         if not code:
-            logger.warning(f"Code generation failed for {prompt_task_id}")
+            logger.warning(f"Code generation failed for {query_id}")
             return None
 
         # Write code to file
@@ -51,7 +51,7 @@ class PromptEvaluator:
             return None
 
         # Perform security scan
-        scan_output = self.bandit_scan.run_sast(
+        scan_output = self.bandit_scan.run_bandit(
             filepath=code_file_path, query_id=query_id)
         if not scan_output:
             logger.warning(f"Invalid scan output for file {code_file_path}")
