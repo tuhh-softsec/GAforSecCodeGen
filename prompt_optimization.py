@@ -56,9 +56,9 @@ class OPS:
         dev_set_queries = task_template.pre_template(prompt, dev_set)
 
         for query_num, query in enumerate(dev_set_queries, 1):
-            prompt_task_id = f"{prompt_id}_{query_num}"
+            query_id = f"{prompt_id}_{query_num}"
             error_status, score = self._process_single_query(
-                query, prompt_task_id, prompt
+                query, query_id, prompt
             )
 
             if score is not None:
