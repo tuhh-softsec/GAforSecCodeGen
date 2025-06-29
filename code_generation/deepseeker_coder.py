@@ -24,13 +24,13 @@ class CodeGenerator():
             print(f"Error initializing model: {e}")
             raise
 
-    def generate_response(self, task_prompt, task_prompt_id):
+    def generate_response(self, query, query_id):
         success = False
         while not success:
             try:
                 # Prepare the input
                 messages = [
-                    {"role": "user", "content": task_prompt}
+                    {"role": "user", "content": query}
                 ]
                 inputs = self.tokenizer.apply_chat_template(
                     messages, add_generation_prompt=True, return_tensors="pt", padding=True).to(self.model.device)
@@ -45,11 +45,11 @@ class CodeGenerator():
 
             except torch.cuda.OutOfMemoryError:
                 print(f"GPU OOM for prompt {
-                      task_prompt_id}... Clearing cache...")
+                      query_id}... Clearing cache...")
                 torch.cuda.empty_cache()
                 sleep(5)
             except Exception as e:
-                print(f"Error for prompt {task_prompt_id}: {e}... Waiting...")
+                print(f"Error for prompt {query_id}: {e}... Waiting...")
                 sleep(65)
                 print("...continue")
 
@@ -58,9 +58,9 @@ class CodeGenerator():
     def wrap_request(self, type, msg):
         return {"role": type, "content": msg}
 
-    def write_code_to_file(self, prompt_task_id, task_prompt, code):
+    def write_code_to_file(self, query_id, query, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
-        print(f"Writing code for {prompt_task_id} to file")
+        print(f"Writing code for {query_id} to file")
         output_dir = "output/deep-seek"
         # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
@@ -72,7 +72,7 @@ class CodeGenerator():
         if all(not block.strip() for block in code_blocks):
             code_blocks.append(code)
 
-        filename = f"{prompt_task_id}"
+        filename = f"{query_id}"
         filepath = os.path.join(output_dir, f"{filename}.py")
         print(filepath)
 
@@ -83,13 +83,3 @@ class CodeGenerator():
             return filepath
         except Exception as e:
             print(f"Failed to write to file: {e}")
-
-
-if __name__ == "__main__":
-    task_prompt = "Generate secure code for the following: The code is a login page that accepts username and password from a user. The checks the credentials against the user database. If the credentials are verified then the user is logged in, else an error message is displayed."
-    task_prompt_id = "sample_1"
-    generator = CodeGenerator()
-    code_response = generator.generate_response(
-        task_prompt=task_prompt, task_prompt_id=task_prompt_id)
-    print(code_response)
-    generator.write_code_to_file(task_prompt_id, code_response)

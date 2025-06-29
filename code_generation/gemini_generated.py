@@ -87,9 +87,9 @@ class CodeGenerator():
         # Gemini doesn't use role-based messaging like GPT-4, but keeping method for compatibility
         return msg
 
-    def write_code_to_file(self, prompt_task_id, prompt_task, code):
+    def write_code_to_file(self, query_id, query, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
-        print(f"Writing code for {prompt_task_id} to file")
+        print(f"Writing code for {query_id} to file")
         output_dir = config.gen_code_output_dir
         # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
@@ -99,7 +99,7 @@ class CodeGenerator():
         if all(not block.strip() for block in code_blocks):
             code_blocks.append(code)
 
-        filename = f"{prompt_task_id}"
+        filename = f"{query_id}"
         filepath = os.path.join(output_dir, f"{filename}.py")
         print(filepath)
         try:
