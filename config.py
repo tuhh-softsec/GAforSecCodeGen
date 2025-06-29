@@ -16,8 +16,8 @@ class Config:
         return self.config['filepaths']['final_optimal_prompts_file']
 
     @property
-    def development_set_file(self):
-        return self.config['filepaths']['development_set_file']
+    def reference_set_file(self):
+        return self.config['filepaths']['reference_set_file']
 
     @property
     def reproductive_group_file(self):
@@ -57,11 +57,16 @@ class Config:
 
     @property
     def optimization_iterations(self):
-        return self.config['GPS_parameters']['iterations']
+        return self.config['hyperparameters']['iterations']
 
     @property
     def optimization_k(self):
-        return self.config['GPS_parameters']['K']
+        return self.config['hyperparameters']['K']
+
+    @property
+    def mutated_prompts_file(self):
+        return self.config['filepaths']['mutated_prompts_file']
+
 
 
 config = Config()

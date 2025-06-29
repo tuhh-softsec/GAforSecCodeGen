@@ -1,16 +1,15 @@
 filepaths:
-  final_optimal_prompts_file: "output/deepseek-coder/optimal_prompts.txt"
-  development_set_file: "data/temp_developmentSet.txt"
-  reproductive_group_file: "output/deepseek-coder/generated-prompts-1.txt"
-  prompts_with_scores_file: "output/deepseek-coder/gen_prompts_with_scores-1-test.txt"
-  gen_code_output_dir: "output/deepseek-coder/code/gps-1/training"
-  bandit_output_dir: "output/deepseek-coder/bandit/gps-1/training"
-  test_set_file: "data/testSet.txt"
-  test_output_file: "output/deepseek-coder/test_output.txt"
-  test_prompts_file: "data/optimal_prompts.txt"
-  evaluation_results_file: "output/optimal_prompt_evaluation.txt"
-  temp_output_dir: "output/deep-seek"
+  final_optimal_prompts_file: "" # path to the file for storing the final optimal file
+  reference_set_file: "data/llmseceval_referenceTasks.txt" # path to the file containing the reference coding tasks
+  reproductive_group_file: "" # path to the file to store the top-K prompts from each iteration
+  prompts_with_scores_file: "" # path to the file to store all the generated prompts along with their scores
+  gen_code_output_dir: "" # path to the folder that stores all the generated code during the optimization
+  bandit_output_dir: "" # path to the folder that stores all the bandit reports
+  test_set_file: "data/testSet.txt" # path to the file containing the evaluation coding tasks
+  test_prompts_file: "" # path to the file containing the prompts to be evaluated 
+  evaluation_results_file: "" # path to the file for storing the scores of the evalautated prompts
+  mutated_prompts_file: "" # path to the file for storing the mutated prompts along with the name of the mutation technique used.
 
-GPS_parameters:
-  iterations: 1
-  K: 4
+hyperparameters:
+  iterations: 6 # number of optimization iterations
+  K: 4 # number of prompts selected in an iteration to proceed to the next iteration
