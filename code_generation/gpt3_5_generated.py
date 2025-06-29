@@ -73,7 +73,6 @@ class CodeGenerator():
     def write_code_to_file(self, query_id, query, code):
         """ Writes a given code snippet and its associated prompt to a Python file. """
         print(f"Writing code for {query_id} to file")
-        # output_dir = "output/code/evaluation/gps-1"
         output_dir = config.gen_code_output_dir
         # Ensure the output directory exists
         os.makedirs(output_dir, exist_ok=True)
